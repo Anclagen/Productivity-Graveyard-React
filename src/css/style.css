@@ -3,7 +3,6 @@
 @import url("./../components/layout/footer/footer.css");
 @import url("./../components/forms/forms.css");
 @import url("./../components/forms/terms.css");
-@import url("./../components/features/profileProjectCard/profileProjectCard.css");
 @import url("./../components/features/projectCard/projectCard.css");
 @import url("./../components/forms/forms.css");
 @import url("./shared/modal.css");
@@ -535,6 +534,18 @@ h2 {
 
 .banner-text.small-banner {
   top: 25%;
+}
+
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
 }
 
 @media (max-width: 900px) {

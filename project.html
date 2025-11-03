@@ -4,6 +4,24 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Memorial - Productivity-Graveyard</title>
+    <link
+      rel="apple-touch-icon"
+      sizes="180x180"
+      href="./src/assets/img/apple-touch-icon.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="32x32"
+      href="./src/assets/img/favicon-32x32.png"
+    />
+    <link
+      rel="icon"
+      type="image/png"
+      sizes="16x16"
+      href="./src/assets/img/favicon-16x16.png"
+    />
+    <link rel="manifest" href="/site.webmanifest" />
     <script type="module" src="/src/main.js" defer></script>
     <script type="module" src="/src/pages/project.js" defer></script>
     <link rel="stylesheet" href="/src/css/style.css" />
@@ -13,15 +31,19 @@
       href="/src/components/features/comments/comments.css"
     />
   </head>
+
   <body>
     <header></header>
     <main>
+      <div
+        id="page-error"
+        class="error-state"
+        role="alert"
+        aria-live="polite"
+        aria-atomic="true"
+        hidden
+      ></div>
       <section id="banner" class="small-banner">
-        <div
-          id="memorial-error"
-          class="error-state"
-          style="display: none"
-        ></div>
         <div class="banner-container small-banner">
           <div class="banner-text small-banner">
             <h1 class="banner-h1">Memorial</h1>
@@ -32,10 +54,11 @@
               <div class="shadow-line-right"></div>
             </div>
             <div class="tombstone-body">
-              <div id="memorial-loading" class="loading-state">
-                <div class="loader"></div>
+              <div id="memorial-loading" class="loading-state" hidden>
+                <div class="loader" aria-hidden="true"></div>
+                <span class="sr-only">Loading memorial…</span>
               </div>
-              <div class="tombstone-content">
+              <div class="tombstone-content" hidden>
                 <img class="tombstone-icon" />
                 <p class="tombstone-title"></p>
                 <div class="tombstone-buried-by"></div>
@@ -50,6 +73,13 @@
                   <blockquote></blockquote>
                 </div>
               </div>
+              <div
+                id="memorial-error"
+                class="error-state"
+                role="alert"
+                aria-live="polite"
+                hidden
+              ></div>
             </div>
             <div class="tombstone-base">
               <div class="tombstone-types-container">
@@ -91,10 +121,70 @@
       <section id="comments-section">
         <div class="comments-section-wrapper container">
           <div class="comments-header">
-            <h2 class="comments-title">Condolences</h2>
-          </div>          
-          <div id="comments-container"></div>          
-          <div id="comments-error" class="error-state" style="display: none;"></div>
+            <p class="comments-title">Condolences</p>
+          </div>
+          <div id="comment-form-container" class="comment-form" hidden>
+            <form id="main-comment-form">
+              <div class="comment-input-wrapper">
+                <textarea
+                  id="main-comment-textarea"
+                  required
+                  rows="4"
+                  maxlength="2000"
+                  placeholder="Write a condolence..."
+                  aria-label="Write a condolence"
+                  aria-describedby="main-comment-error"
+                  aria-invalid="false"
+                ></textarea>
+                <button
+                  type="button"
+                  class="input-clear-btn"
+                  aria-label="Clear condolence text"
+                  title="Clear"
+                  hidden
+                >
+                  ✕
+                </button>
+              </div>
+              <button
+                type="submit"
+                class="btn-beige btn-small"
+                id="new-comment-submit"
+              >
+                Post Condolence
+              </button>
+              <div
+                class="form-message error"
+                id="main-comment-error"
+                role="alert"
+                aria-live="polite"
+              ></div>
+            </form>
+          </div>
+          <div id="comments-login-hint" class="comments-login-hint" hidden>
+            Please <a href="/login.html">log in</a> or
+            <a href="/signup.html">register</a>
+            to share your condolences.
+          </div>
+          <div
+            id="comments-loading"
+            class="loading-state"
+            role="status"
+            aria-live="polite"
+            aria-atomic="true"
+            hidden
+          >
+            <div class="loader" aria-hidden="true"></div>
+            <span class="sr-only">Loading condolences…</span>
+          </div>
+          <div
+            id="comments-error"
+            class="error-state"
+            role="alert"
+            aria-live="polite"
+            hidden
+          ></div>
+          <div id="comments-container"></div>
         </div>
       </section>
     </main>

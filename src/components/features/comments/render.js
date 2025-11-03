@@ -1,11 +1,8 @@
 import { createEl } from "../../../utils/createEl.js";
 import { timeAgo } from "../../../utils/dateHandlers.js";
-import {
-  isCommentDeleted,
-  getUserAvatarUrl,
-  canUserModifyComment,
-  canUserReply,
-} from "./helpers.js";
+import { isCommentDeleted, getUserAvatarUrl } from "./helpers.js";
+import { canReply, canModify } from "./permissions.js";
+import { createIcon } from "../../ui/icon.js";
 
 /**
  * Render a list of comments
@@ -18,8 +15,10 @@ import {
  * @returns {HTMLElement} Comments list container
  */
 export function renderCommentsList(comments, options = {}) {
-  const list = createEl("div", { class: "comments-list" });
-  comments.forEach((comment) => list.appendChild(renderComment(comment, options)));
+  const list = createEl("div", { class: "comments-list", role: "list" });
+  comments.forEach((comment) =>
+    list.appendChild(renderComment(comment, options)),
+  );
   return list;
 }
 
@@ -33,21 +32,26 @@ export function renderComment(comment, options = {}) {
   const { currentUser, onReply, onEdit, onDelete } = options;
 
   if (isCommentDeleted(comment)) {
-    return renderDeletedComment(comment);
+    return renderDeletedComment(comment, options);
   }
 
   const el = createEl("div", {
     class: "comment",
+    role: "listitem",
     "data-comment-id": comment.id,
   });
 
   const metaRow = renderCommentMeta(comment);
   el.appendChild(metaRow);
 
-  const message = createEl("div", { class: "comment-message" }, comment.message);
+  const message = createEl(
+    "p",
+    { class: "comment-message" },
+    comment.message,
+  );
   el.appendChild(message);
 
-  if (currentUser && currentUser.id) {
+  if (currentUser?.id) {
     const actions = renderCommentActions(comment, {
       currentUser,
       onReply,
@@ -90,7 +94,16 @@ function renderCommentMeta(comment) {
 
   userSection.append(avatar, username);
 
-  const time = createEl("span", { class: "comment-time" }, timeAgo(comment.createdAt));
+  const iso = new Date(comment.createdAt).toISOString();
+  const time = createEl(
+    "time",
+    {
+      class: "comment-time",
+      dateTime: iso,
+      title: new Date(comment.createdAt).toLocaleString(),
+    },
+    timeAgo(comment.createdAt),
+  );
   metaRow.append(userSection, time);
 
   return metaRow;
@@ -102,34 +115,47 @@ function renderCommentActions(comment, options) {
   const leftActions = createEl("div");
   const rightActions = createEl("div");
 
-  if (canUserReply(comment, currentUser)) {
-    const replyBtn = createEl(
-      "button",
-      { class: "btn-small", "aria-label": "Reply to comment" },
-      "Reply",
-    );
-    replyBtn.onclick = () => onReply?.(comment.id);
+  if (canReply(comment, currentUser)) {
+    const replyBtn = createEl("button", {
+      class: "btn-small btn-with-icon",
+      type: "button",
+      "aria-label": "Reply to comment",
+    });
+
+    const icon = createIcon("reply");
+    if (icon) replyBtn.appendChild(icon);
+    replyBtn.appendChild(createEl("span", { class: "btn-label" }, "Reply"));
+
+    replyBtn.addEventListener("click", () => onReply?.(comment.id));
     leftActions.appendChild(replyBtn);
   }
 
-  if (canUserModifyComment(comment, currentUser)) {
-    const editBtn = createEl(
-      "button",
-      { class: "btn-small", "aria-label": "Edit comment" },
-      "Edit",
-    );
-    editBtn.onclick = () => onEdit?.(comment.id);
+  if (canModify(comment, currentUser)) {
+    const editBtn = createEl("button", {
+      class: "btn-small btn-with-icon",
+      type: "button",
+      "aria-label": "Edit comment",
+    });
 
-    const deleteBtn = createEl(
-      "button",
-      { class: "btn-small", "aria-label": "Delete comment" },
-      "Delete",
-    );
-    deleteBtn.onclick = () => {
+    const editIcon = createIcon("edit");
+    if (editIcon) editBtn.appendChild(editIcon);
+    editBtn.appendChild(createEl("span", { class: "btn-label" }, "Edit"));
+    editBtn.addEventListener("click", () => onEdit?.(comment.id));
+
+    const deleteBtn = createEl("button", {
+      class: "btn-small btn-with-icon btn-danger",
+      type: "button",
+      "aria-label": "Delete comment",
+    });
+
+    const deleteIcon = createIcon("delete");
+    if (deleteIcon) deleteBtn.appendChild(deleteIcon);
+    deleteBtn.appendChild(createEl("span", { class: "btn-label" }, "Delete"));
+    deleteBtn.addEventListener("click", () => {
       if (confirm("Are you sure you want to delete this comment?")) {
         onDelete?.(comment.id);
       }
-    };
+    });
 
     rightActions.append(editBtn, deleteBtn);
   }
@@ -140,7 +166,7 @@ function renderCommentActions(comment, options) {
   return actions;
 }
 
-function renderDeletedComment(comment) {
+function renderDeletedComment(comment, options = {}) {
   const el = createEl("div", {
     class: "comment deleted",
     "data-comment-id": comment.id,
@@ -149,20 +175,25 @@ function renderDeletedComment(comment) {
   const metaRow = createEl("div", { class: "comment-meta" });
   const userSection = createEl("div");
 
-  userSection.appendChild(
-    createEl("span", { class: "comment-username" }, "Comment deleted"),
+  const iso = new Date(comment.createdAt).toISOString();
+  const time = createEl(
+    "time",
+    {
+      class: "comment-time",
+      dateTime: iso,
+      title: new Date(comment.createdAt).toLocaleString(),
+    },
+    timeAgo(comment.createdAt),
   );
-
-  const time = createEl("span", { class: "comment-time" }, timeAgo(comment.createdAt));
   metaRow.append(userSection, time);
 
-  const message = createEl("div", { class: "comment-message" }, "[deleted]");
+  const message = createEl("p", { class: "comment-message" }, "[deleted]");
   el.append(metaRow, message);
 
   if (comment.replies && comment.replies.length > 0) {
     const repliesContainer = createEl("div", { class: "comment-replies" });
     comment.replies.forEach((reply) => {
-      repliesContainer.appendChild(renderDeletedComment(reply));
+      repliesContainer.appendChild(renderComment(reply, options));
     });
     el.appendChild(repliesContainer);
   }
@@ -172,8 +203,4 @@ function renderDeletedComment(comment) {
 
 export function renderEmpty() {
   return createEl("div", { class: "comments-empty" }, "No condolences yet.");
-}
-
-export function renderError(message = "Something went wrong") {
-  return createEl("div", { class: "error-state" }, message);
 }
