@@ -1,126 +1,75 @@
-# Productivity Graveyard
+# React + TypeScript + Vite
 
-> _A final resting place for all those ambitious projects that never made it to production._
+This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
 
-## Project Overview
+Currently, two official plugins are available:
 
-As developers, we've all started countless projects that seemed exciting at first, only to abandon them for the next shiny idea. Productivity Graveyard is a memorial site where you can lay these abandoned projects to rest with the honor they deserve.
+- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Babel](https://babeljs.io/) (or [oxc](https://oxc.rs) when used in [rolldown-vite](https://vite.dev/guide/rolldown)) for Fast Refresh
+- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/) for Fast Refresh
 
-### Features
+## React Compiler
 
-- Landing Page: Grim reaper with a clipboard, graveyard background, atmospheric elements
-- Submit a Dead Project: Form to bury your abandoned projects
-- Graveyard View: Cemetery-style display of all "dead" projects with interactive tombstones
-- Stats Section: Track abandonment statistics and project lifespans
-- User Profile: Personal statistics and individual project graveyards
+The React Compiler is enabled on this template. See [this documentation](https://react.dev/learn/react-compiler) for more information.
 
-## Prerequisites
+Note: This will impact Vite dev & build performances.
 
-- Node.js (v20+)
-- npm
+## Expanding the ESLint configuration
 
-## Getting Started
+If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
 
-1. Clone the repo
+```js
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
 
-```bash
-git clone https://github.com/Juniors-Dev/Frontend-Productivity-Graveyard.git
-cd frontend-productivity-graveyard
+      // Remove tseslint.configs.recommended and replace with this
+      tseslint.configs.recommendedTypeChecked,
+      // Alternatively, use this for stricter rules
+      tseslint.configs.strictTypeChecked,
+      // Optionally, add this for stylistic rules
+      tseslint.configs.stylisticTypeChecked,
+
+      // Other configs...
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
 
-2. Install all dependencies & Husky hooks
+You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
 
-```bash
-npm run setup
+```js
+// eslint.config.js
+import reactX from 'eslint-plugin-react-x'
+import reactDom from 'eslint-plugin-react-dom'
+
+export default defineConfig([
+  globalIgnores(['dist']),
+  {
+    files: ['**/*.{ts,tsx}'],
+    extends: [
+      // Other configs...
+      // Enable lint rules for React
+      reactX.configs['recommended-typescript'],
+      // Enable lint rules for React DOM
+      reactDom.configs.recommended,
+    ],
+    languageOptions: {
+      parserOptions: {
+        project: ['./tsconfig.node.json', './tsconfig.app.json'],
+        tsconfigRootDir: import.meta.dirname,
+      },
+      // other options...
+    },
+  },
+])
 ```
-
-3. Set up development tools
-
-```bash
-# Husky will be installed automatically via the prepare script
-# Verify Husky installation
-npx husky --version
-```
-
-### Development
-
-1. Start the development server
-
-To start the development environment, use:
-
-```bash
-npm run dev
-```
-
-This will:
-
-1. Lint all JavaScript files using ESLint to catch errors and enforce code quality.
-2. Format code using Prettier.
-3. Start the development server on http://localhost:3000 using http-server.
-
-#### Development API
-
-Base url: https://backend-productivity-graveyard.onrender.com
-Server docs: https://backend-productivity-graveyard.onrender.com/doc/
-
-### Development Workflow
-
-The project uses several tools to ensure code quality:
-
-- ESLint: For JavaScript linting
-- Prettier: For code formatting
-- Husky: For pre-commit hooks that run linting and formatting
-
-When you commit changes, Husky will automatically:
-
-- Run ESLint on JavaScript files
-- Format all code with Prettier
-
-If you encounter any issues with the pre-commit hooks, check that Husky is properly installed:
-
-```bash
-npm run prepare
-```
-
-## Project Structure
-
-```bash
-├── assets/ # Fonts and images
-├── css/ # Global styles
-├── src/
-│ └── components/ # Reusable UI components
-│ ├── footer/
-  ├── forms/
-│ ├── header/
-│ ├── profile/
-│ └── projects/
-├── index.html # Main entry point
-└── profile.html # User profile page
-```
-
-### Available Scripts
-
-- npm run format - Run Prettier to format code
-- npm run lint - Run ESLint to check code quality
-
-## Technologies
-
-- HTML5
-- CSS3 (Vanilla)
-- JavaScript (ES6+, Modules)
-- ESLint
-- Prettier
-- Husky
-
-### Future Enhancements (possible)
-
-- "Resurrect" functionality for abandoned projects
-- Leaderboards for most abandoned projects
-- Mourner comments on project tombstones
-- Visual themes for different abandonment contexts
-- Automatic obituary generator
-
-## Author
-
-This project is created by the Juniors-Dev collaborative group, a team of web developer students at Noroff.
-https://github.com/Juniors-Dev
